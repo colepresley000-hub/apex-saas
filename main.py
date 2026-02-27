@@ -176,7 +176,7 @@ h1{font-size:clamp(2.2rem,7vw,3.5rem);font-weight:900;line-height:1.1;margin-bot
 <div class="nav-item active"><div class="nav-icon">🏠</div>HOME</div>
 <div class="nav-item"><div class="nav-icon">⚡</div>SWARMS</div>
 <div class="nav-item"><div class="nav-icon">📊</div>STATS</div>
-<div class="nav-icon">💼</div>WALLET</div>
+<div class="nav-item"><div class="nav-icon">💼</div>WALLET</div>
 </div>
 </div>
 </body></html>""")
