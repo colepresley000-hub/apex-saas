@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Swarm - AI Agent Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>');
+            opacity: 0.1;
+        }
+        
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            opacity: 0.95;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 100px 20px;
+            background: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 60px;
+            color: #1a1a2e;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        
+        .feature-card {
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #1a1a2e;
+        }
+        
+        .feature-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        /* Pricing Section */
+        .pricing {
+            padding: 100px 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .pricing-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        
+        .pricing-card.featured {
+            border-color: #667eea;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1a1a2e;
+        }
+        
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        .plan-price span {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .plan-features li:before {
+            content: "✓ ";
+            color: #00ff88;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        /* CTA Section */
+        .cta {
+            padding: 100px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .cta h2 {
+            font-size: 3rem;
+            margin-bottom: 30px;
+        }
+        
+        /* Auth Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-content h2 {
+            color: #1a1a2e;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .close-modal {
+            float: right;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>🚀 Apex Swarm</h1>
+            <p>Deploy 100 AI Agents. One Platform.</p>
+            <p style="font-size: 1.2rem; opacity: 0.9;">
+                Autonomous agents for trading, research, and automation.<br>
+                No coding required. Works 24/7.
+            </p>
+            <div class="cta-buttons">
+                <button class="btn btn-primary" onclick="openModal('signup')">
+                    Start Free Trial
+                </button>
+                <button class="btn btn-secondary" onclick="openModal('signin')">
+                    Sign In
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Apex Swarm?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Crypto Arbitrage</h3>
+                    <p>Agents scan 20+ exchanges 24/7 to find profitable price differences. Automatic opportunity detection with real-time alerts.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🌾</div>
+                    <h3>DeFi Yield Farming</h3>
+                    <p>Monitor 50+ DeFi protocols for best yields. Auto-rebalancing and smart yield optimization without manual intervention.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Market Research</h3>
+                    <p>Agents compile comprehensive market reports from hundreds of sources. Professional-grade research delivered daily.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>Workflow Automation</h3>
+                    <p>Automate repetitive tasks across platforms. Connect to APIs, process data, and execute actions autonomously.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Collective Intelligence</h3>
+                    <p>All agents share one brain. When one learns, all 100 benefit. Never repeat mistakes. Always improving.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Real-Time Dashboard</h3>
+                    <p>Beautiful dashboard showing all agent activity. Download reports, view results, track performance live.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing Section -->
+    <section class="pricing">
+        <div class="container">
+            <h2 class="section-title">Simple, Transparent Pricing</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="plan-name">Starter</div>
+                    <div class="plan-price">$99<span>/month</span></div>
+                    <ul class="plan-features">
+                        <li>20 AI Agents</li>
+                        <li>Arbitrage Detection</li>
+                        <li>DeFi Monitoring</li>
+                        <li>Basic Reports</li>
+                        <li>Email Support</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="openModal('signup')">
+                        Start Free Trial
+                    </button>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <div class="plan-name">Pro</div>
+                    <div class="plan-price">$299<span>/month</span></div>
+                    <ul class="plan-features">
+                        <li>100 AI Agents</li>
+                        <li>Everything in Starter</li>
+                        <li>Advanced Research</li>
+                        <li>Custom Automation</li>
+                        <li>Priority Support</li>
+                        <li>API Access</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="openModal('signup')">
+                        Start Free Trial
+                    </button>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="plan-name">Enterprise</div>
+                    <div class="plan-price">$999<span>/month</span></div>
+                    <ul class="plan-features">
+                        <li>500+ AI Agents</li>
+                        <li>Everything in Pro</li>
+                        <li>White Label Option</li>
+                        <li>Dedicated Support</li>
+                        <li>Custom Development</li>
+                        <li>SLA Guarantee</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="openModal('signup')">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta">
+        <h2>Ready to Deploy Your Agent Swarm?</h2>
+        <p style="font-size: 1.3rem; margin-bottom: 40px;">
+            Join 500+ users already using AI agents to make money 24/7
+        </p>
+        <button class="btn btn-primary" onclick="openModal('signup')">
+            Start Free 7-Day Trial
+        </button>
+    </section>
+    
+    <!-- Auth Modals -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('signup')">&times;</span>
+            <h2>Create Your Account</h2>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signup_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signup_email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signup_password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Create Account
+                </button>
+                <p style="text-align: center; margin-top: 20px; color: #666;">
+                    Already have an account? 
+                    <a href="#" onclick="switchModal('signin')" style="color: #667eea;">Sign In</a>
+                </p>
+            </form>
+        </div>
+    </div>
+    
+    <div id="signinModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('signin')">&times;</span>
+            <h2>Welcome Back</h2>
+            <form id="signinForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signin_email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signin_password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Sign In
+                </button>
+                <p style="text-align: center; margin-top: 20px; color: #666;">
+                    Don't have an account? 
+                    <a href="#" onclick="switchModal('signup')" style="color: #667eea;">Sign Up</a>
+                </p>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openModal(type) {
+            document.getElementById(type + 'Modal').classList.add('active');
+        }
+        
+        function closeModal(type) {
+            document.getElementById(type + 'Modal').classList.remove('active');
+        }
+        
+        function switchModal(to) {
+            closeModal(to === 'signup' ? 'signin' : 'signup');
+            openModal(to);
+        }
+        
+        // Handle signup
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('signup_name').value;
+            const email = document.getElementById('signup_email').value;
+            const password = document.getElementById('signup_password').value;
+            
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({full_name: name, email, password})
+                });
+                
+                const data = await response.json();
+                
+                if (data.access_token) {
+                    localStorage.setItem('token', data.access_token);
+                    window.location.href = '/app';
+                } else {
+                    alert(data.detail || 'Signup failed');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+        
+        // Handle signin
+        document.getElementById('signinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('signin_email').value;
+            const password = document.getElementById('signin_password').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                });
+                
+                const data = await response.json();
+                
+                if (data.access_token) {
+                    localStorage.setItem('token', data.access_token);
+                    window.location.href = '/app';
+                } else {
+                    alert(data.detail || 'Login failed');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

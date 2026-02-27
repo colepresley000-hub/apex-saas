@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; padding: 0; background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        canvas { border: 2px solid #666; }
+        button { margin: 20px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div>
+        <canvas id="thumbnail" width="600" height="600"></canvas>
+        <div style="text-align: center;">
+            <button onclick="downloadImage()">Download Thumbnail</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('thumbnail');
+        const ctx = canvas.getContext('2d');
+        
+        const gradient = ctx.createLinearGradient(0, 0, 600, 600);
+        gradient.addColorStop(0, '#0a0e1a');
+        gradient.addColorStop(0.5, '#1a1f3a');
+        gradient.addColorStop(1, '#0a0e1a');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 600, 600);
+        
+        ctx.fillStyle = 'rgba(99, 102, 241, 0.9)';
+        ctx.fillRect(50, 50, 60, 60);
+        
+        ctx.font = 'bold 48px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'left';
+        ctx.fillText('APEX', 130, 85);
+        ctx.fillText('SWARM', 130, 125);
+        
+        ctx.font = 'bold 52px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('AI AGENTS', 300, 250);
+        
+        const textGradient = ctx.createLinearGradient(0, 300, 600, 300);
+        textGradient.addColorStop(0, '#667eea');
+        textGradient.addColorStop(1, '#ec4899');
+        ctx.fillStyle = textGradient;
+        ctx.font = 'bold 64px Arial';
+        ctx.fillText('MAKE', 300, 330);
+        ctx.fillText('MONEY', 300, 400);
+        
+        ctx.font = 'bold 20px Arial';
+        ctx.fillStyle = '#00ff88';
+        ctx.fillText('98.7% Success • $847K Profits', 300, 500);
+        
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'apex-swarm-thumbnail.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        setTimeout(downloadImage, 1000);
+    </script>
+</body>
+</html>

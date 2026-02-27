@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; padding: 0; background: #1a1a2e; }
+        #canvas-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        canvas { border: 2px solid #666; }
+        .controls { position: fixed; top: 20px; right: 20px; background: white; padding: 20px; border-radius: 10px; }
+        button { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="cover" width="1280" height="720"></canvas>
+    </div>
+    <div class="controls">
+        <button onclick="downloadImage()">Download Cover (1280x720)</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('cover');
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 1280, 720);
+        gradient.addColorStop(0, '#0a0e1a');
+        gradient.addColorStop(0.5, '#1a1f3a');
+        gradient.addColorStop(1, '#0a0e1a');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1280, 720);
+        
+        function drawOrb(x, y, radius, color, blur) {
+            ctx.save();
+            ctx.filter = `blur(${blur}px)`;
+            const orbGradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            orbGradient.addColorStop(0, color);
+            orbGradient.addColorStop(1, 'transparent');
+            ctx.fillStyle = orbGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+        
+        drawOrb(200, 150, 150, 'rgba(99, 102, 241, 0.3)', 40);
+        drawOrb(1000, 500, 200, 'rgba(139, 92, 246, 0.3)', 50);
+        
+        ctx.font = 'bold 80px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.fillText('AI AGENTS THAT', 640, 250);
+        
+        const textGradient = ctx.createLinearGradient(0, 300, 1280, 300);
+        textGradient.addColorStop(0, '#667eea');
+        textGradient.addColorStop(1, '#ec4899');
+        ctx.fillStyle = textGradient;
+        ctx.font = 'bold 100px Arial';
+        ctx.fillText('MAKE MONEY', 640, 350);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 80px Arial';
+        ctx.fillText('WHILE YOU SLEEP', 640, 450);
+        
+        ctx.font = 'bold 24px Arial';
+        ctx.fillStyle = '#00ff88';
+        ctx.fillText('126 AGENTS • 98.7% SUCCESS • $847K PROFITS', 640, 600);
+        
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'apex-swarm-cover.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        setTimeout(downloadImage, 1000);
+    </script>
+</body>
+</html>

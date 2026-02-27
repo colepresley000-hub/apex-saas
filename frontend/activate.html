@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Your Apex Swarm License</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        .success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .api-key-display {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Activate License</h1>
+        <p>Enter your Gumroad license key to activate Apex Swarm</p>
+        
+        <form id="activateForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label>License Key</label>
+                <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX" required>
+            </div>
+            
+            <button type="submit">Activate License</button>
+        </form>
+        
+        <div class="success" id="success">
+            <strong>✅ License Activated!</strong>
+            <p style="margin-top: 10px;">Your API Key:</p>
+            <div class="api-key-display" id="apiKeyDisplay"></div>
+            <p style="margin-top: 10px; font-size: 0.9rem;">Save this key securely. You'll need it to access the dashboard.</p>
+        </div>
+        
+        <div class="error" id="error">
+            <strong>❌ Activation Failed</strong>
+            <p id="errorMessage" style="margin-top: 10px;"></p>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('activateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const licenseKey = document.getElementById('licenseKey').value;
+            
+            try {
+                const response = await fetch('/api/v1/activate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, license_key: licenseKey })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('success').style.display = 'block';
+                    document.getElementById('error').style.display = 'none';
+                    document.getElementById('apiKeyDisplay').textContent = data.api_key;
+                    document.getElementById('activateForm').style.display = 'none';
+                } else {
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('success').style.display = 'none';
+                    document.getElementById('errorMessage').textContent = data.error || 'Invalid license key';
+                }
+            } catch (error) {
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('errorMessage').textContent = 'Network error. Please try again.';
+            }
+        });
+    </script>
+</body>
+</html>
