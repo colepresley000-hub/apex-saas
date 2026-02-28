@@ -106,6 +106,17 @@ def deploy(request: DeployRequest, req: Request):
     user = verify_api_key(api_key)
     if not user:
         raise HTTPException(401)
+    
+    # Check agent limit (default 20 for all users, can upgrade later)
+    conn = sqlite3.connect('apex.db')
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM agents WHERE user_id = ?", (user[0],))
+    agent_count = c.fetchone()[0]
+    conn.close()
+    
+    if agent_count >= 20:
+        raise HTTPException(403, detail="Agent limit reached. Upgrade to deploy more agents.")
+    
     agent_id = f"{request.agent_type}-{secrets.token_hex(4)}"
     conn = sqlite3.connect('apex.db')
     c = conn.cursor()
@@ -218,8 +229,10 @@ ${agent.tasks.map(task=>`
 ${task.result?`
 <div class="result-box">
 <div class="result-label">✅ RESULT:</div>
-<pre style="color:rgba(255,255,255,0.9);font-size:0.85rem;white-space:pre-wrap;line-height:1.6">${JSON.stringify(task.result,null,2)}</pre>
-<button class="copy-btn" onclick="navigator.clipboard.writeText(JSON.stringify(${JSON.stringify(task.result)}));alert('Copied!')">📋 Copy Result</button>
+<div id="result-${task.id}" style="color:rgba(255,255,255,0.9);font-size:0.9rem;line-height:1.8;margin:10px 0">
+${Object.entries(task.result).map(([k,v])=>`<div style="margin:8px 0"><strong style="color:#60a5fa">${k}:</strong> ${typeof v === 'object' ? JSON.stringify(v) : v}</div>`).join('')}
+</div>
+<button class="copy-btn" onclick="copyResult(${task.id})">📋 Copy Full Result</button>
 </div>
 `:'<div style="color:#60a5fa;font-size:0.85rem">⏳ Processing...</div>'}
 </div>
@@ -232,6 +245,15 @@ document.getElementById('agentsList').innerHTML='<div style="text-align:center;c
 }catch(e){console.error(e)}}
 
 loadEverything();
+function copyResult(taskId){
+const tasks=document.querySelectorAll('.task-item');
+for(let task of tasks){
+const resultDiv=task.querySelector('#result-'+taskId);
+if(resultDiv){
+navigator.clipboard.writeText(resultDiv.textContent);
+alert('Result copied!');
+return;
+}}}
 setInterval(loadEverything,10000);
 </script></body></html>""")
 
