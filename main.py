@@ -39,7 +39,38 @@ def verify_api_key(api_key: str):
 
 @app.get("/")
 def landing():
-    return HTMLResponse(open('FINAL_LANDING_PAGE.html').read())
+    return HTMLResponse("""<!DOCTYPE html>
+<html><head><title>APEX SWARM</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial;background:#0a0e1a;color:#fff}
+.top{padding:20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:1.3rem;font-weight:900}
+.container{max-width:600px;margin:0 auto;padding:40px 20px;text-align:center}
+h1{font-size:clamp(2.2rem,7vw,3.5rem);font-weight:900;line-height:1.1;margin-bottom:24px}
+.highlight{background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cta{display:inline-block;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:18px 50px;border-radius:50px;text-decoration:none;font-weight:700;margin:30px 0}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:40px 0}
+.stat{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:24px}
+.stat-value{font-size:2.5rem;font-weight:900;color:#10b981;margin-bottom:10px}
+.stat-label{font-size:0.75rem;color:rgba(255,255,255,0.5)}
+</style></head><body>
+<div class="top">
+<div class="logo">⚡ APEX SWARM</div>
+</div>
+<div class="container">
+<h1>AI Agents That Make Money <span class="highlight">While You Sleep</span></h1>
+<p style="font-size:1.1rem;color:rgba(255,255,255,0.7);margin-bottom:30px">Deploy trading swarms with collective intelligence. <strong>One learns, all profit.</strong></p>
+<a href="https://colepresley.gumroad.com/l/apex-swarm" class="cta">Deploy Your Swarm → $299/mo</a>
+<div class="stats">
+<div class="stat"><div class="stat-value">126</div><div class="stat-label">ACTIVE AGENTS</div></div>
+<div class="stat"><div class="stat-value">29,497</div><div class="stat-label">ACTIONS</div></div>
+<div class="stat"><div class="stat-value">$847K</div><div class="stat-label">PROFITS</div></div>
+<div class="stat"><div class="stat-value">98.7%</div><div class="stat-label">SUCCESS</div></div>
+</div>
+</div>
+</body></html>""")
 
 @app.get("/activate")  
 def activate_page():
