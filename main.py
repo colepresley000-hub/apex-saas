@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, EmailStr
@@ -11,7 +11,6 @@ def init_db():
     conn = sqlite3.connect('apex.db')
     c = conn.cursor()
     c.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, email TEXT UNIQUE, license_key TEXT, api_key TEXT UNIQUE)')
-    c.execute('CREATE TABLE IF NOT EXISTS agents (id INTEGER PRIMARY KEY, user_id INTEGER, agent_id TEXT, agent_type TEXT)')
     conn.commit()
     conn.close()
 
@@ -21,19 +20,15 @@ class ActivateRequest(BaseModel):
     email: EmailStr
     license_key: str
 
-def verify_api_key(api_key: str):
-    if not api_key:
-        return None
-    conn = sqlite3.connect('apex.db')
-    c = conn.cursor()
-    c.execute("SELECT id, email FROM users WHERE api_key = ?", (api_key,))
-    user = c.fetchone()
-    conn.close()
-    return user
-
 @app.get("/")
 def root():
-    return HTMLResponse(open('FINAL_LANDING_PAGE.html').read() if True else "Apex Swarm")
+    return HTMLResponse("""<!DOCTYPE html>
+<html><head><title>APEX SWARM</title></head>
+<body style="font-family:Arial;background:#0a0e1a;color:white;padding:50px;text-align:center">
+<h1>APEX SWARM</h1>
+<p>AI Agents That Make Money While You Sleep</p>
+<a href="https://colepresley.gumroad.com/l/apex-swarm" style="background:#667eea;color:white;padding:15px 30px;border-radius:50px;text-decoration:none;display:inline-block;margin:20px">Get Started - $299/mo</a>
+</body></html>""")
 
 @app.post("/api/v1/activate")
 def activate(request: ActivateRequest):
@@ -46,10 +41,10 @@ def activate(request: ActivateRequest):
         conn.commit()
         return {"success": True, "api_key": api_key}
     except:
-        return {"success": False, "error": "Failed"}
+        return {"success": False}
     finally:
         conn.close()
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "message": "System online"}
+    return {"status": "ok"}
