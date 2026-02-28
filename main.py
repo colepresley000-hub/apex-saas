@@ -138,6 +138,155 @@ def get_tasks(req: Request):
     conn.close()
     return {"tasks": tasks}
 
+
+@app.get("/results")
+def results_page():
+    return HTMLResponse("""<!DOCTYPE html>
+<html><head><title>Results - APEX SWARM</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial;background:#0a0e1a;color:#fff;padding:20px}
+.top{display:flex;justify-content:space-between;padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:30px}
+.container{max-width:1000px;margin:0 auto}
+h1{font-size:2rem;margin-bottom:30px}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:40px}
+.stat-box{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:20px;text-align:center}
+.stat-value{font-size:2.5rem;font-weight:900;color:#10b981;margin-bottom:5px}
+.stat-label{font-size:0.85rem;color:rgba(255,255,255,0.5)}
+.section{margin:40px 0}
+.section-title{font-size:0.85rem;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:20px;font-weight:600}
+.agent-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:20px;margin-bottom:15px}
+.agent-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.agent-badge{padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:600;background:rgba(16,185,129,0.2);color:#10b981}
+.task-item{background:rgba(255,255,255,0.02);padding:15px;border-radius:8px;margin-top:10px;border-left:3px solid #3b82f6}
+.task-header{display:flex;justify-content:space-between;margin-bottom:10px}
+.task-desc{color:rgba(255,255,255,0.7);font-size:0.9rem;margin-bottom:10px}
+.result-box{background:rgba(255,255,255,0.05);padding:15px;border-radius:8px;margin-top:10px}
+.result-label{font-weight:700;color:#10b981;margin-bottom:10px}
+.copy-btn{background:#667eea;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:0.85rem;margin-top:10px}
+.copy-btn:hover{background:#5568d3}
+.back-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:10px 20px;border-radius:8px;text-decoration:none;color:#fff;display:inline-block}
+</style></head><body>
+<div class="top">
+<div style="font-size:1.3rem;font-weight:900">⚡ APEX SWARM</div>
+<a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+</div>
+<div class="container">
+<h1>All Results</h1>
+
+<div class="stats-row">
+<div class="stat-box"><div class="stat-value" id="totalAgents">0</div><div class="stat-label">TOTAL AGENTS</div></div>
+<div class="stat-box"><div class="stat-value" id="totalTasks">0</div><div class="stat-label">TASKS EXECUTED</div></div>
+<div class="stat-box"><div class="stat-value" id="completedTasks">0</div><div class="stat-label">COMPLETED</div></div>
+<div class="stat-box"><div class="stat-value" id="successRate">0%</div><div class="stat-label">SUCCESS RATE</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">ALL AGENTS & THEIR TASKS</div>
+<div id="agentsList">Loading...</div>
+</div>
+</div>
+
+<script>
+const API=localStorage.getItem('apex_api_key');
+if(!API)window.location.href='/activate';
+
+async function loadEverything(){
+try{
+const r=await fetch('/api/v1/results/complete',{headers:{'x-api-key':API}});
+const d=await r.json();
+
+document.getElementById('totalAgents').textContent=d.total_agents;
+document.getElementById('totalTasks').textContent=d.total_tasks;
+document.getElementById('completedTasks').textContent=d.completed_tasks;
+document.getElementById('successRate').textContent=d.success_rate+'%';
+
+if(d.agents&&d.agents.length){
+document.getElementById('agentsList').innerHTML=d.agents.map(agent=>`
+<div class="agent-card">
+<div class="agent-header">
+<div><strong>${agent.agent_id}</strong> <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">(${agent.agent_type})</span></div>
+<span class="agent-badge">ACTIVE</span>
+</div>
+${agent.tasks.map(task=>`
+<div class="task-item">
+<div class="task-header">
+<span style="font-size:0.75rem;color:rgba(255,255,255,0.5)">Task #${task.id}</span>
+<span style="font-size:0.75rem;font-weight:600;color:${task.status==='completed'?'#10b981':'#60a5fa'}">${task.status.toUpperCase()}</span>
+</div>
+<div class="task-desc">${task.description}</div>
+${task.result?`
+<div class="result-box">
+<div class="result-label">✅ RESULT:</div>
+<pre style="color:rgba(255,255,255,0.9);font-size:0.85rem;white-space:pre-wrap;line-height:1.6">${JSON.stringify(task.result,null,2)}</pre>
+<button class="copy-btn" onclick="navigator.clipboard.writeText(JSON.stringify(${JSON.stringify(task.result)}));alert('Copied!')">📋 Copy Result</button>
+</div>
+`:'<div style="color:#60a5fa;font-size:0.85rem">⏳ Processing...</div>'}
+</div>
+`).join('')}
+</div>
+`).join('');
+}else{
+document.getElementById('agentsList').innerHTML='<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px">No agents deployed yet</div>';
+}
+}catch(e){console.error(e)}}
+
+loadEverything();
+setInterval(loadEverything,10000);
+</script></body></html>""")
+
+@app.get("/api/v1/results/complete")
+def get_complete_results(req: Request):
+    api_key = req.headers.get('x-api-key')
+    user = verify_api_key(api_key)
+    if not user:
+        raise HTTPException(401)
+    
+    conn = sqlite3.connect('apex.db')
+    c = conn.cursor()
+    
+    # Get all agents
+    c.execute("SELECT agent_id, agent_type FROM agents WHERE user_id = ?", (user[0],))
+    agents_data = c.fetchall()
+    
+    agents = []
+    total_tasks = 0
+    completed_tasks = 0
+    
+    for agent_id, agent_type in agents_data:
+        c.execute("SELECT id, task_description, status, result_data, created_at FROM tasks WHERE agent_id = ? ORDER BY created_at DESC", (agent_id,))
+        tasks = []
+        for t in c.fetchall():
+            total_tasks += 1
+            if t[2] == 'completed':
+                completed_tasks += 1
+            tasks.append({
+                "id": t[0],
+                "description": t[1],
+                "status": t[2],
+                "result": json.loads(t[3]) if t[3] else None,
+                "created_at": t[4]
+            })
+        
+        agents.append({
+            "agent_id": agent_id,
+            "agent_type": agent_type,
+            "tasks": tasks
+        })
+    
+    success_rate = round((completed_tasks / total_tasks * 100) if total_tasks > 0 else 0, 1)
+    
+    conn.close()
+    
+    return {
+        "total_agents": len(agents),
+        "total_tasks": total_tasks,
+        "completed_tasks": completed_tasks,
+        "success_rate": success_rate,
+        "agents": agents
+    }
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
