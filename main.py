@@ -65,15 +65,15 @@ def dashboard():
 <html><head><title>Dashboard</title><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>*{margin:0;padding:0}body{font-family:Arial;background:#0a0e1a;color:#fff;padding:20px}h1{margin:20px 0}.btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:15px;border-radius:12px;margin:10px 0;cursor:pointer;display:flex;gap:15px}.task{background:rgba(255,255,255,0.02);padding:20px;border-radius:12px;margin:10px 0}.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);align-items:center;justify-content:center}.modal.show{display:flex}.box{background:#1a1f3a;padding:30px;border-radius:20px;max-width:500px;width:90%}textarea{width:100%;padding:15px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;min-height:100px;margin:15px 0}button{padding:15px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;width:100%}</style>
 </head><body><h1>Dashboard</h1>
-<div class="btn" onclick="open('research')"><div>🔍</div><div><strong>Research</strong></div></div>
-<div class="btn" onclick="open('arbitrage')"><div>💰</div><div><strong>Arbitrage</strong></div></div>
-<div class="btn" onclick="open('defi')"><div>🌾</div><div><strong>DeFi</strong></div></div>
+<div class="btn" onclick="openModal('research')"><div>🔍</div><div><strong>Research</strong></div></div>
+<div class="btn" onclick="openModal('arbitrage')"><div>💰</div><div><strong>Arbitrage</strong></div></div>
+<div class="btn" onclick="openModal('defi')"><div>🌾</div><div><strong>DeFi</strong></div></div>
 <div id="tasks">No tasks</div>
-<div class="modal" id="m"><div class="box"><h2 id="t">Deploy</h2><textarea id="d"></textarea><button onclick="deploy()">Deploy</button><button onclick="close()" style="background:none;color:#666;margin-top:10px">Cancel</button></div></div>
+<div class="modal" id="m"><div class="box"><h2 id="t">Deploy</h2><textarea id="d"></textarea><button onclick="deploy()">Deploy</button><button onclick="closeModal()" style="background:none;color:#666;margin-top:10px">Cancel</button></div></div>
 <script>const API=localStorage.getItem('apex_api_key');if(!API)window.location.href='/activate';let type='';
-function open(t){type=t;document.getElementById('m').classList.add('show');}
-function close(){document.getElementById('m').classList.remove('show');}
-async function deploy(){const d=document.getElementById('d').value;if(!d)return;const r=await fetch('/api/v1/agents/deploy',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API},body:JSON.stringify({agent_type:type,task_description:d})});close();load();}
+function openModal(t){type=t;document.getElementById('m').classList.add('show');}
+function closeModal(){document.getElementById('m').classList.remove('show');}
+async function deploy(){const d=document.getElementById('d').value;if(!d){alert('Enter task description');return;}try{const r=await fetch('/api/v1/agents/deploy',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API},body:JSON.stringify({agent_type:type,task_description:d})});const res=await r.json();if(res.success){closeModal();load();alert('Agent deployed!');}else{alert('Deploy failed');}}catch(e){alert('Error: '+e);}}
 async function load(){const r=await fetch('/api/v1/tasks',{headers:{'x-api-key':API}});const d=await r.json();if(d.tasks&&d.tasks.length)document.getElementById('tasks').innerHTML=d.tasks.map(t=>`<div class="task"><strong>${t.agent_id}</strong><br>${t.description}<br>${t.result?'<pre>'+JSON.stringify(t.result,null,2)+'</pre>':'Processing...'}</div>`).join('');}
 load();setInterval(load,5000);</script></body></html>""")
 
