@@ -213,10 +213,13 @@ setInterval(loadTasks,5000);
 </script></body></html>""")
 
 @app.post("/api/v1/agents/deploy")
-def deploy_agent(request: DeployRequest):
-    user = verify_api_key(request.api_key)
+def deploy_agent(request: DeployRequest, req: Request):
+    api_key = req.headers.get('x-api-key') or req.headers.get('X-API-Key') or request.api_key
+    if not api_key:
+        raise HTTPException(401, detail="No API key")
+    user = verify_api_key(api_key)
     if not user:
-        raise HTTPException(401)
+        raise HTTPException(401, detail="Invalid API key")
     
     user_id = user[0]
     agent_id = f"{request.agent_type}-{secrets.token_hex(4)}"
@@ -251,10 +254,12 @@ def deploy_agent(request: DeployRequest):
 
 @app.get("/api/v1/user/dashboard")
 def get_dashboard(request: Request):
-    api_key = request.headers.get('X-API-Key')
+    api_key = request.headers.get('x-api-key') or request.headers.get('X-API-Key')
+    if not api_key:
+        raise HTTPException(401, detail="No API key")
     user = verify_api_key(api_key)
     if not user:
-        raise HTTPException(401)
+        raise HTTPException(401, detail="Invalid API key")
     
     user_id = user[0]
     conn = sqlite3.connect('apex.db')
@@ -267,10 +272,12 @@ def get_dashboard(request: Request):
 
 @app.get("/api/v1/tasks")
 def get_tasks(request: Request):
-    api_key = request.headers.get('X-API-Key')
+    api_key = request.headers.get('x-api-key') or request.headers.get('X-API-Key')
+    if not api_key:
+        raise HTTPException(401, detail="No API key provided")
     user = verify_api_key(api_key)
     if not user:
-        raise HTTPException(401)
+        raise HTTPException(401, detail="Invalid API key")
     
     user_id = user[0]
     conn = sqlite3.connect('apex.db')
