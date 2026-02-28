@@ -122,7 +122,7 @@ h1{font-size:clamp(2.2rem,7vw,3.5rem);font-weight:900;line-height:1.1;margin-bot
 <div class="hero">
 <h1>AI Agents That<br>Make Money <span class="highlight">While<br>You Sleep</span></h1>
 <p class="subtitle">Deploy trading swarms with collective intelligence. <strong>One learns, all profit.</strong></p>
-<a href="https://colepresley.gumroad.com/l/apex-swarm" class="cta">Deploy Your Swarm → $99/mo</a>
+<a href="https://colepresley.gumroad.com/l/apex-swarm" class="cta">Deploy Your Swarm → $299/mo</a>
 <div class="protocol-text">INSTITUTIONAL-GRADE EXECUTION PROTOCOL</div>
 </div>
 
