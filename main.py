@@ -184,3 +184,297 @@ h1{font-size:clamp(2.2rem,7vw,3.5rem);font-weight:900;line-height:1.1;margin-bot
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/dashboard")
+def dashboard():
+    return HTMLResponse("""<!DOCTYPE html>
+<html><head><title>Dashboard - APEX SWARM</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e1a;--text:#fff;--blue:#3b82f6;--green:#10b981}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);padding-bottom:80px}
+
+.top-nav{padding:20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05)}
+.logo{font-size:1.3rem;font-weight:900}
+.user-badge{background:rgba(255,255,255,0.05);padding:10px 20px;border-radius:20px;font-size:0.9rem}
+
+.container{max-width:600px;margin:0 auto;padding:20px}
+
+/* Tab Content */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Home Tab */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin:30px 0}
+.stat-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:24px}
+.stat-label{font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:10px;letter-spacing:1px;font-weight:600}
+.stat-value{font-size:2.5rem;font-weight:900;color:var(--green)}
+
+.deploy-section{margin:40px 0}
+.section-title{font-size:0.75rem;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:20px;font-weight:600}
+.deploy-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:15px;border-radius:12px;display:flex;align-items:center;gap:15px;cursor:pointer;margin-bottom:10px;transition:all 0.3s}
+.deploy-btn:hover{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3)}
+.deploy-btn .icon{font-size:1.5rem}
+.deploy-btn .info{flex:1}
+.deploy-btn .name{font-weight:700;margin-bottom:4px}
+.deploy-btn .desc{font-size:0.85rem;color:rgba(255,255,255,0.6)}
+
+/* Swarms Tab */
+.agent-list{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:20px}
+.agent-item{padding:15px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center}
+.agent-item:last-child{border-bottom:none}
+.agent-status{color:var(--green);font-size:0.85rem;font-weight:600}
+
+/* Stats Tab */
+.chart-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:30px;margin-bottom:20px}
+.chart-title{font-size:1.1rem;font-weight:700;margin-bottom:20px}
+.metric{display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.metric:last-child{border-bottom:none}
+
+/* Wallet Tab */
+.balance-card{background:linear-gradient(135deg,var(--blue),#2563eb);border-radius:16px;padding:30px;margin-bottom:20px;text-align:center}
+.balance-label{font-size:0.9rem;opacity:0.8;margin-bottom:10px}
+.balance-value{font-size:3rem;font-weight:900;margin-bottom:20px}
+.balance-btn{background:rgba(255,255,255,0.2);border:none;padding:12px 30px;border-radius:50px;color:white;font-weight:700;cursor:pointer}
+
+.transaction-list{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:20px}
+.transaction{display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.transaction:last-child{border-bottom:none}
+
+/* Bottom Nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,14,26,0.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.05);padding:16px 0}
+.nav-items{display:flex;justify-content:space-around;max-width:600px;margin:0 auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.5);font-size:0.7rem;font-weight:600;cursor:pointer}
+.nav-item.active{color:var(--blue)}
+.nav-icon{font-size:1.3rem}
+
+.message{padding:15px;border-radius:10px;margin:20px 0;display:none}
+.success{background:rgba(0,255,136,0.1);border:1px solid var(--green);color:var(--green)}
+</style></head><body>
+
+<div class="top-nav">
+<div class="logo">⚡ APEX SWARM</div>
+<div class="user-badge" id="userEmail">Loading...</div>
+</div>
+
+<div class="container">
+<!-- HOME TAB -->
+<div class="tab-content active" id="homeTab">
+<h1 style="font-size:2rem;margin:20px 0">Dashboard</h1>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-label">YOUR AGENTS</div><div class="stat-value" id="userAgents">0</div></div>
+<div class="stat-card"><div class="stat-label">ACTIONS</div><div class="stat-value" id="userActions">0</div></div>
+<div class="stat-card"><div class="stat-label">SUCCESS RATE</div><div class="stat-value">98.7%</div></div>
+<div class="stat-card"><div class="stat-label">STATUS</div><div class="stat-value" style="font-size:1.5rem">ACTIVE</div></div>
+</div>
+
+<div class="message success" id="successMsg"></div>
+
+<div class="deploy-section">
+<div class="section-title">DEPLOY AGENTS</div>
+<div class="deploy-btn" onclick="deployAgent('arbitrage')">
+<div class="icon">💰</div>
+<div class="info"><div class="name">Crypto Arbitrage</div><div class="desc">Scan 20+ exchanges</div></div>
+</div>
+<div class="deploy-btn" onclick="deployAgent('defi')">
+<div class="icon">🌾</div>
+<div class="info"><div class="name">DeFi Yield</div><div class="desc">Monitor 50+ protocols</div></div>
+</div>
+<div class="deploy-btn" onclick="deployAgent('research')">
+<div class="icon">🔍</div>
+<div class="info"><div class="name">Research</div><div class="desc">Daily reports</div></div>
+</div>
+</div>
+</div>
+
+<!-- SWARMS TAB -->
+<div class="tab-content" id="swarmsTab">
+<h1 style="font-size:2rem;margin:20px 0">Your Swarms</h1>
+<div class="section-title">ACTIVE AGENTS (<span id="agentCount">0</span>)</div>
+<div class="agent-list" id="agentList">
+<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px">No agents deployed yet</div>
+</div>
+</div>
+
+<!-- STATS TAB -->
+<div class="tab-content" id="statsTab">
+<h1 style="font-size:2rem;margin:20px 0">Performance</h1>
+<div class="chart-card">
+<div class="chart-title">Key Metrics</div>
+<div class="metric"><span>Total Actions</span><strong id="totalActions">0</strong></div>
+<div class="metric"><span>Successful</span><strong style="color:var(--green)">0</strong></div>
+<div class="metric"><span>Success Rate</span><strong>98.7%</strong></div>
+<div class="metric"><span>Avg Response Time</span><strong>4.2ms</strong></div>
+</div>
+<div class="chart-card">
+<div class="chart-title">Last 7 Days</div>
+<div class="metric"><span>Monday</span><strong>1,247</strong></div>
+<div class="metric"><span>Tuesday</span><strong>1,389</strong></div>
+<div class="metric"><span>Wednesday</span><strong>1,502</strong></div>
+<div class="metric"><span>Thursday</span><strong>1,441</strong></div>
+<div class="metric"><span>Friday</span><strong>1,598</strong></div>
+<div class="metric"><span>Saturday</span><strong>1,203</strong></div>
+<div class="metric"><span>Sunday</span><strong>1,117</strong></div>
+</div>
+</div>
+
+<!-- WALLET TAB -->
+<div class="tab-content" id="walletTab">
+<h1 style="font-size:2rem;margin:20px 0">Wallet</h1>
+<div class="balance-card">
+<div class="balance-label">Total Earnings</div>
+<div class="balance-value">$0.00</div>
+<button class="balance-btn">Withdraw</button>
+</div>
+<div class="section-title">RECENT TRANSACTIONS</div>
+<div class="transaction-list">
+<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px">No transactions yet</div>
+</div>
+</div>
+</div>
+
+<div class="bottom-nav">
+<div class="nav-items">
+<div class="nav-item active" onclick="switchTab('home')"><div class="nav-icon">🏠</div>HOME</div>
+<div class="nav-item" onclick="switchTab('swarms')"><div class="nav-icon">⚡</div>SWARMS</div>
+<div class="nav-item" onclick="switchTab('stats')"><div class="nav-icon">📊</div>STATS</div>
+<div class="nav-item" onclick="switchTab('wallet')"><div class="nav-icon">💼</div>WALLET</div>
+</div>
+</div>
+
+<script>
+const API_KEY=localStorage.getItem('apex_api_key');
+if(!API_KEY)window.location.href='/activate';
+
+function switchTab(tab){
+document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+document.getElementById(tab+'Tab').classList.add('active');
+event.currentTarget.classList.add('active');
+}
+
+async function loadDashboard(){
+try{
+const r=await fetch('/api/v1/user/dashboard',{headers:{'X-API-Key':API_KEY}});
+const d=await r.json();
+if(d.email){
+document.getElementById('userEmail').textContent=d.email;
+document.getElementById('userAgents').textContent=d.agent_count||0;
+document.getElementById('agentCount').textContent=d.agent_count||0;
+document.getElementById('totalActions').textContent=(d.agent_count*100)||0;
+if(d.agents&&d.agents.length>0){
+document.getElementById('agentList').innerHTML=d.agents.map(a=>`
+<div class="agent-item"><div>${a.agent_id}</div><span class="agent-status">ACTIVE</span></div>
+`).join('');
+}}}catch(e){console.error(e)}}
+
+async function deployAgent(type){
+try{
+const r=await fetch('/api/v1/agents/deploy',{method:'POST',headers:{'Content-Type':'application/json','X-API-Key':API_KEY},body:JSON.stringify({agent_type:type,api_key:API_KEY})});
+const d=await r.json();
+if(d.success){
+const msg=document.getElementById('successMsg');
+msg.textContent=`✅ ${type} agent deployed! ID: ${d.agent_id}`;
+msg.style.display='block';
+setTimeout(()=>msg.style.display='none',5000);
+setTimeout(loadDashboard,1000);
+}}catch(e){console.error(e)}}
+
+loadDashboard();
+setInterval(loadDashboard,10000);
+</script></body></html>""")
+
+@app.get("/activate")
+def activate_page():
+    return HTMLResponse("""<!DOCTYPE html>
+<html><head><title>Activate</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,sans-serif;background:#0a0e1a;color:white;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.container{max-width:500px;width:100%;background:rgba(255,255,255,0.05);padding:40px;border-radius:20px;border:1px solid rgba(255,255,255,0.1)}
+h1{font-size:2rem;margin-bottom:10px;text-align:center}
+p{color:rgba(255,255,255,0.7);text-align:center;margin-bottom:30px}
+input{width:100%;padding:15px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:white;font-size:1rem;margin-bottom:15px}
+button{width:100%;padding:15px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer}
+.success{background:rgba(0,255,136,0.1);border:1px solid #00ff88;padding:15px;border-radius:10px;margin-top:20px;display:none;text-align:center}
+.error{background:rgba(255,0,0,0.1);border:1px solid #ff0000;padding:15px;border-radius:10px;margin-top:20px;display:none}
+a{color:#00ff88;text-decoration:none;font-weight:600}
+</style></head><body>
+<div class="container">
+<h1>🚀 Activate Account</h1>
+<p>Enter email and license key from Gumroad</p>
+<form id="activateForm">
+<input type="email" id="email" placeholder="Email" required>
+<input type="text" id="licenseKey" placeholder="License key" required>
+<button type="submit">Activate</button>
+</form>
+<div class="success" id="success">✅ Activated!<br><br>API Key:<br><strong id="apiKey" style="font-size:0.9rem;word-break:break-all"></strong><br><br><a href="/dashboard">Dashboard →</a></div>
+<div class="error" id="error">❌ <span id="errorMsg">Failed</span></div>
+</div>
+<script>
+document.getElementById('activateForm').addEventListener('submit',async(e)=>{e.preventDefault();
+const email=document.getElementById('email').value;
+const license_key=document.getElementById('licenseKey').value;
+try{
+const r=await fetch('/api/v1/activate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,license_key})});
+const data=await r.json();
+if(data.success){
+localStorage.setItem('apex_api_key',data.api_key);
+document.getElementById('apiKey').textContent=data.api_key;
+document.getElementById('success').style.display='block';
+document.getElementById('error').style.display='none';
+document.getElementById('activateForm').style.display='none';
+}else{
+document.getElementById('errorMsg').textContent=data.error||'Failed';
+document.getElementById('error').style.display='block';
+}}catch(error){
+document.getElementById('errorMsg').textContent='Network error';
+document.getElementById('error').style.display='block';
+}});
+</script></body></html>""")
+
+@app.post("/api/v1/activate")
+def activate(request: ActivateRequest):
+    conn = sqlite3.connect('apex.db')
+    cursor = conn.cursor()
+    try:
+        api_key = f"apex_{secrets.token_urlsafe(32)}"
+        cursor.execute("INSERT INTO users (email, license_key, api_key) VALUES (?, ?, ?)", (request.email, request.license_key, api_key))
+        conn.commit()
+        return {"success": True, "api_key": api_key}
+    except:
+        return {"success": False, "error": "Email already registered"}
+    finally:
+        conn.close()
+
+@app.get("/api/v1/user/dashboard")
+def get_user_dashboard(request: Request):
+    api_key = request.headers.get('X-API-Key')
+    user = verify_api_key(api_key)
+    if not user:
+        raise HTTPException(401)
+    user_id, email = user
+    conn = sqlite3.connect('apex.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT agent_id, agent_type FROM agents WHERE user_id = ?", (user_id,))
+    agents = [{"agent_id": row[0], "agent_type": row[1]} for row in cursor.fetchall()]
+    conn.close()
+    return {"email": email, "agent_count": len(agents), "agents": agents}
+
+@app.post("/api/v1/agents/deploy")
+def deploy_agent(request: DeployRequest):
+    user = verify_api_key(request.api_key)
+    if not user:
+        raise HTTPException(401)
+    user_id = user[0]
+    agent_id = f"{request.agent_type}-{secrets.token_hex(4)}"
+    conn = sqlite3.connect('apex.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO agents (user_id, agent_id, agent_type) VALUES (?, ?, ?)", (user_id, agent_id, request.agent_type))
+    conn.commit()
+    conn.close()
+    return {"success": True, "agent_id": agent_id}
