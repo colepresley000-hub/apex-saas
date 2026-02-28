@@ -70,10 +70,19 @@ def dashboard():
 <div class="btn" onclick="openModal('defi')"><div>🌾</div><div><strong>DeFi</strong></div></div>
 <div id="tasks">No tasks</div>
 <div class="modal" id="m"><div class="box"><h2 id="t">Deploy</h2><textarea id="d"></textarea><button onclick="deploy()">Deploy</button><button onclick="closeModal()" style="background:none;color:#666;margin-top:10px">Cancel</button></div></div>
-<script>const API=localStorage.getItem('apex_api_key');if(!API)window.location.href='/activate';let type='';
+<script>
+const API=localStorage.getItem('apex_api_key');
+console.log('API Key:', API ? 'Found' : 'NOT FOUND');
+if(!API){
+alert('Not logged in. Redirecting to activate...');
+window.location.href='/activate';
+}
+let type='';
 function openModal(t){type=t;document.getElementById('m').classList.add('show');}
 function closeModal(){document.getElementById('m').classList.remove('show');}
-async function deploy(){const d=document.getElementById('d').value;if(!d){alert('Enter task description');return;}try{const r=await fetch('/api/v1/agents/deploy',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API},body:JSON.stringify({agent_type:type,task_description:d})});const res=await r.json();if(res.success){closeModal();load();alert('Agent deployed!');}else{alert('Deploy failed');}}catch(e){alert('Error: '+e);}}
+async function deploy(){const d=document.getElementById('d').value;if(!d){alert('Enter task description');return;}try{console.log('Deploying with API key:', API);
+const r=await fetch('/api/v1/agents/deploy',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API},body:JSON.stringify({agent_type:type,task_description:d})});
+console.log('Deploy response status:', r.status);const res=await r.json();if(res.success){closeModal();load();alert('Agent deployed!');}else{alert('Deploy failed');}}catch(e){alert('Error: '+e);}}
 async function load(){const r=await fetch('/api/v1/tasks',{headers:{'x-api-key':API}});const d=await r.json();if(d.tasks&&d.tasks.length)document.getElementById('tasks').innerHTML=d.tasks.map(t=>`<div class="task"><strong>${t.agent_id}</strong><br>${t.description}<br>${t.result?'<pre>'+JSON.stringify(t.result,null,2)+'</pre>':'Processing...'}</div>`).join('');}
 load();setInterval(load,5000);</script></body></html>""")
 
